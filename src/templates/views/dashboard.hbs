@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha2/css/bootstrap.min.css"
+        integrity="sha384-DhY6onE6f3zzKbjUPRc2hOzGAdEf4/Dz+WJwBvEYL/lkkIsI3ihufq9hk9K4lVoK" crossorigin="anonymous">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Basic Sign up / Login System</h1>
+        <h2>dashboard area</h2>
+        <div>
+            <p>{{message}}</p>
+            <p>{{user.name}}</p>
+            <p>{{token}}</p>
+            <a href="/users/profile">Read profile</a>
+            <a href="/users/profile/delete">Delete Profile</button>
+                <a href="/users/profile/updateForm">Update profile</a>
+                <form action="/users/profile/logout" method="POST">
+                    <input type="submit" value="logout">
+                </form>
+        </div>
+    </div>
+
+    </div>
+</body>
+
+</html>
