@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
-    <link rel="stylesheet" href="/styles/signup.css">
+    <link rel="stylesheet" href="/styles/login.css">
     <title>Front page</title>
 </head>
 
@@ -19,34 +19,30 @@
         </div>
         
         <div class="form-container">
-            <h2>Sign up</h2>
-            <form action="/users" method="POST">
-                <div class="field">
-                    <label>Name</label>
-                    <br>
-                    <input type="text" name="name">
-                </div>
+            <h2>Login</h2>
+           
+            <form action="/users/login" method="POST">
                 <div class="field">
                     <label>Email address</label>
                     <br>
                     <input type="text" name="email">
                 </div>
                 <div class="field">
-                    <label>Age</label>
-                    <br>
-                    <input type="text" name="age">
-                </div>
-                <div class="field">
                     <label>password</label>
                     <br>
                     <input type="password"  name="password">
                 </div>
-                <input id="submitBtn" type="submit" class="btn btn-primary" value="Sign up" />
-                <p>Already have an account ? click <a href="/login">here</a></p>       
+                <input id="submitBtn" type="submit" class="btn btn-primary" value="Login" />
+                <p>Don't have an account ? click <a href="/">here</a></p>       
             </form>
         </div>
     </div>
     
 </body>
+     
+</script>
 
 </html>
+
+
+ 

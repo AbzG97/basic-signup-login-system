@@ -13,6 +13,9 @@ User_Router.get("/", async (req, res) => {
     res.render('index');
 });
 
+User_Router.get("/login", async (req, res) => {
+    res.render('login');
+});
 
 // Sign up / create new user route
 User_Router.post('/users', async (req, res) => {
@@ -20,11 +23,12 @@ User_Router.post('/users', async (req, res) => {
     const user = new User(data);
 
     try {
+        user.password = await bcrypt.hash(user.password, 8);
         const generate_token = jwt.sign({_id: user._id.toString()}, 'SecretToken'); // generate new token using jwt library
         user.JWTtokens = user.JWTtokens.concat({token : generate_token}); // adds the object to tokens array
         res.cookie('access_token', generate_token);
         await user.save();
-        res.status(201).send({message: "following user created", user});
+        res.render('dashboard', {message: "user created", name: user.name});
 
     } catch (e) {
         res.status(500).send({ message: "Server error" });
@@ -50,7 +54,7 @@ User_Router.post('/users/login', async (req, res) => {
                 user.JWTtokens = user.JWTtokens.concat({token : generate_token}); // adds the object to tokens array
                 res.cookie('access_token', generate_token);
                 await user.save();
-                res.status(200).send({message:"login successful", user});
+                res.status(200).render("dashboard", {message: "login successful", name: user.name});
             }
         }
     } catch (e) {
@@ -78,7 +82,7 @@ User_Router.get("/users", async (req, res) => {
 
 // get the user details of an authenticated user
 User_Router.get("/users/profile", authenticate, async (req, res) => {
-    res.send({message: "authentication successful", user: req.user});
+    res.render('dashboard',{message: "authentication successful / getting user data", user: req.user});
 });
 
 // deleting the authenticated user profile
@@ -88,7 +92,7 @@ User_Router.get("/users/profile/delete", authenticate, async(req, res) => {
         await User.findByIdAndDelete({_id: req.user._id}); // finds the user using req.user_id and deletes the user
         
         // res.status(200).send({"message":"deletion successful the following user has been deleted", user: user_to_be_deleted});
-        res.status(200).send({message: "user deleted"});
+        res.status(200).redirect('/login');
       
 
     } catch (e){
@@ -111,17 +115,15 @@ User_Router.post('/users/profile/update', authenticate, async(req, res) => {
         name: req.body.name,
         email: req.body.email,
         age: req.body.age,
-        password: hashedPassword
+        password: req.body.password ? hashedPassword : req.user.password
     }
-    console.log(updated_data);
     try{
         const user_to_be_updated = await User.findByIdAndUpdate({_id: req.user._id}, updated_data);
         await user_to_be_updated.save();
-        console.log(user_to_be_updated);
-        res.status(200).render('dashboard', {"message": "updated user info"});
+        res.status(200).render('dashboard', {message: "authentication successful / updated user info"});
 
     } catch(e) {
-        res.status(500).send({"message":"server error, failed to update data"});
+        res.status(500).send({message:"server error, failed to update data"});
     }
 });
 
@@ -130,10 +132,10 @@ User_Router.post("/users/profile/logout", authenticate, async (req, res) => {
     try{
         req.user.JWTtokens = [];
         await req.user.save();
-        res.status(200).redirect("/");
+        res.status(200).redirect("/login");
 
     } catch (e){
-        res.status(500).send({"message":"server error, failed to logout"});
+        res.status(500).send({message:"server error, failed to logout"});
     }
     
 
