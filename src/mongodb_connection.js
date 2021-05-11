@@ -1,14 +1,12 @@
 const mongoose = require("mongoose");
+require('dotenv').config();
 
 
-mongoose.connect('mongodb://localhost:27017/BDLS-db', { 
+mongoose.connect(process.env.DB_URL, { 
     useNewUrlParser: true, 
     useUnifiedTopology: true,
     useCreateIndex: true,
 });
-
-
-// /Users/abdul/mongodb-win32-x86_64-windows-4.4.3/bin/mongod.exe --dbpath=/Users/abdul/mongodb_data
 
 module.exports = mongoose;
 
