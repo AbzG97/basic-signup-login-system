@@ -4,6 +4,8 @@ require("./mongodb_connection");
 const User = require("./user_model");
 const authenticate = require("./authentication");
 const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken');
+
 
 
 
@@ -14,58 +16,46 @@ User_Router.get("/", async (req, res) => {
 
 // Sign up / create new user route
 User_Router.post('/users', async (req, res) => {
-    console.log(req.body);
-    const newUser = new User({
-        name: req.body.name,
-        email: req.body.email,
-        age: req.body.age,
-        password: req.body.password
-    });
-  //  console.log(newUser);
+    const data = req.body;
+    const user = new User(data);
 
     try {
-
-       
-        await newUser.save();
-        const new_token = await newUser.generateJWT();
-      //  localStorage.setItem('token', new_token);
-      res.cookie('access_token', new_token, {
-        maxAge: 3600 * 100,
-        httpOnly: true
-    });
-
-
-        res.status(201).render('dashboard', {
-            "message": "the following user has been added to db",
-            // user: newUser, 
-            // token: new_token 
-        });
+        const generate_token = jwt.sign({_id: user._id.toString()}, 'SecretToken'); // generate new token using jwt library
+        user.JWTtokens = user.JWTtokens.concat({token : generate_token}); // adds the object to tokens array
+        res.cookie('access_token', generate_token);
+        await user.save();
+        res.status(201).send({message: "following user created", user});
 
     } catch (e) {
-        res.status(500).send({ "error": "Server error" });
+        res.status(500).send({ message: "Server error" });
 
     }
 
 });
+
+
 // login user
 User_Router.post('/users/login', async (req, res) => {
     try {
-
-        const user = await User.findByCreds(req.body.email, req.body.password);
-        const new_token = await user.generateJWT();
-       res.cookie('access_token', new_token, {
-           maxAge: 3600 * 100,
-           httpOnly: true
-       });
-        res.status(200).render('dashboard', {
-            user: user, 
-            // token: new_token 
-        });
-
+        const user = await User.findOne({email: req.body.email});
+        console.log(user);
+        if(!user) {
+            res.status(200).send({message: "user not found "});
+        } else {
+            const isMatch = await bcrypt.compare(req.body.password, user.password); // compare the password inputed by the user model password
+            if(!isMatch){
+                res.status(200).send({message: "wrong password"});
+            } else {
+                const generate_token = jwt.sign({_id: user._id.toString()}, 'SecretToken'); // generate new token using jwt library
+                user.JWTtokens = user.JWTtokens.concat({token : generate_token}); // adds the object to tokens array
+                res.cookie('access_token', generate_token);
+                await user.save();
+                res.status(200).send({message:"login successful", user});
+            }
+        }
     } catch (e) {
-        res.status(500).send({ "error": "Server error" });
+        res.status(500).send({ message: "Server error" });
     }
-
 });
 
 // get all users
@@ -79,6 +69,8 @@ User_Router.get("/users", async (req, res) => {
         res.status(500).send({ "error": "Server error" });
     }
 });
+
+
 
 // ROUTES THAT REQUIRE AUTHENTICATION read, update, delete profiles using  their jwt and verifying it.
 
@@ -96,7 +88,7 @@ User_Router.get("/users/profile/delete", authenticate, async(req, res) => {
         await User.findByIdAndDelete({_id: req.user._id}); // finds the user using req.user_id and deletes the user
         
         // res.status(200).send({"message":"deletion successful the following user has been deleted", user: user_to_be_deleted});
-        res.status(200).redirect("/");
+        res.status(200).send({message: "user deleted"});
       
 
     } catch (e){
@@ -126,7 +118,6 @@ User_Router.post('/users/profile/update', authenticate, async(req, res) => {
         const user_to_be_updated = await User.findByIdAndUpdate({_id: req.user._id}, updated_data);
         await user_to_be_updated.save();
         console.log(user_to_be_updated);
-      //  await user_to_be_updated.save();
         res.status(200).render('dashboard', {"message": "updated user info"});
 
     } catch(e) {

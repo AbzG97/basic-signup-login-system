@@ -52,30 +52,6 @@ userSchema.pre('save', async function(next){
     next();
 });
 
-// finds the user using email and password
-userSchema.statics.findByCreds = async (email, password) => {
-    const user = await User.findOne({email: email}); // find by email
-    if(!user) {
-        throw new Error("failed login");
-    } else {
-        const match_password = await bcrypt.compare(password, user.password); // compare the password parameter by the user model password
-        if(!match_password){
-            throw new Error("failed login");
-        } else {
-            return user;
-        }
-    }
-}
-
-// mongoose method for the user model that generates a jwt tokens for users when signin up and logging in
-userSchema.methods.generateJWT = async function() {
-    const user = this;
-    const generate_token = jwt.sign({_id: user._id.toString()}, 'SecretToken', { expiresIn: '1h' }); // generate new token using jwt library
-    user.JWTtokens = user.JWTtokens.concat({token : generate_token}); // adds the object to tokens array
-    await user.save();
-    return generate_token;
-    
-}
 
 
 const User = mongoose.model("User", userSchema, 'users');
