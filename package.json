@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "basic sign up / login / logout system that uses jwt ",
   "main": "app.js",
+  "engines": {
+    "node": "12.x"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
