@@ -22,7 +22,7 @@ app.set('views', viewsPath);
 
 app.use(User_Router);
 
-const port = 3000 || process.env.PORT;
+const port = process.env.PORT || 3000; 
 
 app.listen(port, () => {
     console.log("server is up and running on port " + port);
